@@ -8,7 +8,7 @@
 
 [![Version](https://img.shields.io/badge/version-2.0.0-3DDC84?style=flat-square)](https://github.com/imademodsgg-hub/APKB/releases/tag/v2.0)
 [![Platform](https://img.shields.io/badge/platform-Termux%20%C2%B7%20Linux-073042?style=flat-square)](https://github.com/imademodsgg-hub/APKB)
-[![Stack](https://img.shields.io/badge/stack-bash%20%C2%B7%20python%20stdlib-4DD0E1?style=flat-square)](https://github.com/imademodsgg-hub/APKB)
+[![Stack](https://img.shields.io/badge/stack-bash%20%C2%B7%20python%20%C2%B7%20android%20toolchain-4DD0E1?style=flat-square)](https://github.com/imademodsgg-hub/APKB)
 [![Output](https://img.shields.io/badge/output-unsigned%20APK%20(you%20sign%20it)-FFCA28?style=flat-square)](#you-sign-it)
 
 [Website](https://imademodsgg-hub.github.io/APKB/) · [Download v2.0](https://github.com/imademodsgg-hub/APKB/releases/tag/v2.0) · [Report an issue](https://github.com/imademodsgg-hub/APKB/issues)
@@ -17,14 +17,14 @@
 
 ---
 
-APKB compiles raw Java into installable Android APKs on **Termux or Linux**, with no build system in the middle. It can also turn any HTML project into a WebView app, broadcast a full graphical lab into your browser, and run your app in a phone simulator **before** you build it.
+APKB compiles raw Java into installable Android APKs on **Termux or Linux**, with no build system in the middle. It can also turn an HTML project or site into a WebView app, broadcast a full graphical lab into your browser, and preview your app in a phone frame **before** you build it.
 
 ## Highlights
 
-- **Raw Java → APK.** Point APKB at any Android source tree, whatever its folder layout. The scanner finds the manifest, resources, Java sources and libraries, then the pipeline builds a release or debug APK.
-- **HTML → APK wizard.** Turn a website or local HTML project into a real WebView app: splash screen, icon, theme colors, orientation, JS bridge, offline page and permissions, from one guided flow.
+- **Raw Java → APK.** Point APKB at a raw-Java Android project, even with a non-standard folder layout. The scanner finds the manifest, resources, Java sources and libraries, then the pipeline builds a release or debug APK.
+- **HTML → APK wizard.** Turn a local HTML project or a site URL into a WebView app: splash screen, icon, theme colors, orientation, JS bridge, offline page and permissions, from one guided flow.
 - **Broadcast Into Browser.** `bash apkb.sh broadcast` opens a graphical lab in your browser. Termux/Linux still does all the processing; the page streams live progress, steps and the full console, and the finished APK downloads from the page.
-- **Try Before Build.** Run your app in a phone frame before compiling. Your real layouts, drawables, values, assets and Java code are interpreted live in the browser, with touch, dialogs, toasts, multi-activity navigation, lifecycle, rotation, dark mode, WebView, Canvas views, SharedPreferences, Handler/Thread/AsyncTask and browser-native permission prompts.
+- **Try Before Build.** Preview your app in a phone frame before compiling: layouts, drawables, values, assets and Java code are interpreted live in the browser, with touch, dialogs, toasts, multi-activity navigation, lifecycle, rotation, dark mode, WebView, Canvas views, SharedPreferences, Handler/Thread/AsyncTask and browser-native permission prompts. This is a limited browser preview, not an Android emulator.
 - **Project Checker.** Broken resource references, missing permissions and bad imports are caught before any build starts, reported with the exact file and line, a hint, and a built-in editor to fix and reload.
 - **APK Inspector, Analyzer and Lab Doctor.** Inspect any APK's manifest, permissions and contents, analyze a project, and diagnose your toolchain. Every failed build saves a full log automatically.
 
@@ -53,7 +53,7 @@ source (Java + res + manifest)
 
 ## Get started
 
-Requirements: **Termux** on Android, or any **Linux** with bash, Java and Python 3. Missing Android build tools are installed for you on first run.
+Requirements: **Termux** on Android, or a **Linux** system, with bash, Java and Python 3, plus the Android command-line build tools (aapt2/aapt, d8/dx, zipalign). APKB installs missing tools for you on first run.
 
 ```bash
 git clone https://github.com/imademodsgg-hub/APKB.git
@@ -68,6 +68,10 @@ bash apkb.sh broadcast          # add --lan to reach it from other devices on yo
 
 The browser lab listens on `127.0.0.1` behind a one-time token by default. Progress, history, failed-build logs and settings live in `~/.apkb`, shared between the terminal UI and the browser lab.
 
+## A note on this release
+
+This release was prepared from source inspection. Feature descriptions reflect the source code and its own documentation; they were not verified by runtime tests before publication.
+
 ## You sign it
 
 APKB produces an **unsigned APK** by design. Sign it with `apksigner` and your own key before installing or publishing:
@@ -78,7 +82,7 @@ apksigner sign --ks my-key.jks app-release.apk
 
 ## Honest limits of the browser preview
 
-Native `.so` code, OpenGL ES, Kotlin and third-party libraries can't run inside a browser. Their classes are stubbed and listed under "Not supported in the preview".
+The preview is a browser-based approximation, not an Android emulator. Native `.so` code, OpenGL ES, Kotlin and third-party libraries can't run inside a browser; their classes are stubbed and listed under "Not supported in the preview".
 
 ## Project layout
 
