@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>APKB · Build Android APKs from a terminal</title>
+<title>APKB · Build Android APKs from your Termux</title>
 <meta name="description" content="APKB turns raw Java into installable Android APKs on Termux or Linux. No Gradle, no Flutter, no PC. With a browser lab and a phone simulator that runs your app before you build it.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23073042'/%3E%3Cpath d='M9 21a7 7 0 0 1 14 0z' fill='%233DDC84'/%3E%3Ccircle cx='13' cy='17.6' r='.9' fill='%23073042'/%3E%3Ccircle cx='19' cy='17.6' r='.9' fill='%23073042'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -98,15 +98,16 @@ h2{font-size:clamp(28px,3.6vw,40px);font-weight:800;letter-spacing:-.02em;line-h
 .feat-list li{position:relative;padding-left:22px;font-size:15px;color:var(--dim)}
 .feat-list li::before{content:"▸";color:var(--green);font-weight:700;position:absolute;left:0;top:0}
 .feat-list b{color:var(--ink);font-weight:600}
-.checkline{display:flex;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12.5px;align-items:baseline}
+.checkline{display:flex;flex-wrap:wrap;gap:6px 10px;padding:9px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px;align-items:baseline}
+.term-cap{font-family:var(--mono);font-size:11px;color:var(--faint);padding:8px 16px;border-top:1px dashed var(--line);background:#0d1424}
 .checkline:last-child{border-bottom:none}
 .sev{flex-shrink:0;font-weight:700;font-size:11px;padding:2px 8px;border-radius:6px}
 .sev.e{background:rgba(239,83,80,.14);color:var(--red)}
 .sev.w{background:rgba(255,202,40,.12);color:var(--amber)}
 .sev.i{background:rgba(77,208,225,.1);color:var(--cyan)}
 .loc{color:var(--cyan)}
-.checkline .msg{color:#c9d6e8}
-.checkline .hint{color:var(--faint)}
+.checkline .msg{color:#c9d6e8;flex:1 1 220px;min-width:0;overflow-wrap:anywhere}
+.checkline .hint{color:var(--faint);flex:1 1 140px;min-width:0;overflow-wrap:anywhere}
 .getstart{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:start}
 @media(max-width:900px){.getstart{grid-template-columns:1fr}}
 .note{border:1px solid var(--line);border-left:3px solid var(--amber);background:rgba(255,202,40,.05);border-radius:10px;padding:16px 18px;font-size:14px;color:var(--dim);margin-top:22px}
@@ -141,8 +142,8 @@ footer{border-top:1px solid var(--line);padding:44px 0 54px;position:relative;z-
 <section class="hero" id="top">
   <div class="wrap">
     <span class="eyebrow"><span class="dot"></span> v2.0 · Lab Edition · Termux &amp; Linux</span>
-    <h1>Build real Android APKs<br>from a <span class="g">terminal</span>.</h1>
-    <p class="lede">APKB compiles raw Java into installable APKs with <b>no Gradle, no Flutter and no PC</b>. It turns any HTML project into a WebView app, broadcasts a full graphical lab into your browser, and runs your app in a phone simulator <b>before</b> you build it.</p>
+    <h1>Build real Android APKs<br><span class="g">from your Termux</span>.</h1>
+    <p class="lede">APKB compiles raw Java into installable APKs with <b>no Gradle, no Flutter and no PC</b>. It turns an HTML project or site into a WebView app, broadcasts a full graphical lab into your browser, and previews your app in a phone frame <b>before</b> you build it.</p>
     <div class="cta">
       <a class="btn primary" href="https://github.com/imademodsgg-hub/APKB/releases/tag/v2.0">Download v2.0</a>
       <a class="btn" href="#start">Get started</a>
@@ -152,7 +153,7 @@ footer{border-top:1px solid var(--line);padding:44px 0 54px;position:relative;z-
       <div class="stat"><div class="n">0</div><div class="l">Gradle or Flutter required</div></div>
       <div class="stat"><div class="n">1</div><div class="l">command: bash apkb.sh</div></div>
       <div class="stat"><div class="n">2</div><div class="l">build modes: Java &amp; HTML</div></div>
-      <div class="stat"><div class="n">100%</div><div class="l">bash + Python stdlib</div></div>
+      <div class="stat"><div class="n">9</div><div class="l">tools in the browser lab</div></div>
     </div>
   </div>
 </section>
@@ -161,17 +162,17 @@ footer{border-top:1px solid var(--line);padding:44px 0 54px;position:relative;z-
   <div class="wrap">
     <div class="kicker">What it does</div>
     <h2>A complete APK workshop that fits in your pocket.</h2>
-    <p class="sub">Every stage of building an Android app, rebuilt as small, readable bash and Python. Nothing hidden, nothing downloaded behind your back.</p>
+    <p class="sub">Every stage of building an Android app, rebuilt as small, readable bash and Python you can read end to end.</p>
     <div class="cards">
       <div class="card">
         <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3DDC84" stroke-width="2"><path d="M4 17l6-6-6-6M12 19h8"/></svg></div>
         <h3>Raw Java → APK</h3>
-        <p>Point APKB at any Android source tree, whatever its folder layout. The scanner finds the manifest, resources, Java sources and libraries, then the pipeline compiles a release or debug APK.</p>
+        <p>Point APKB at a raw-Java Android project, even with a non-standard folder layout. The scanner finds the manifest, resources, Java sources and libraries, then the pipeline compiles a release or debug APK.</p>
       </div>
       <div class="card">
         <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3DDC84" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></svg></div>
         <h3>HTML → APK wizard</h3>
-        <p>Turn a website or local HTML project into a real WebView app. Splash screen, icon, theme colors, orientation, JS bridge, offline page and permissions, all from one guided wizard.</p>
+        <p>Turn a local HTML project or a site URL into a WebView app. Splash screen, icon, theme colors, orientation, JS bridge, offline page and permissions, from one guided wizard.</p>
       </div>
       <div class="card">
         <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3DDC84" stroke-width="2"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
@@ -181,7 +182,7 @@ footer{border-top:1px solid var(--line);padding:44px 0 54px;position:relative;z-
       <div class="card">
         <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3DDC84" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18.5h2"/></svg></div>
         <h3>Try Before Build</h3>
-        <p>Run your app in a phone frame before compiling. Your real layouts, drawables and Java code, interpreted live in the browser with touch, dialogs, toasts and multi-activity navigation.</p>
+        <p>Preview your app in a phone frame before compiling. Your layouts, drawables and Java code, interpreted live in the browser with touch, dialogs, toasts and multi-activity navigation. A browser preview, not an emulator.</p>
       </div>
       <div class="card">
         <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3DDC84" stroke-width="2"><path d="M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5"/></svg></div>
@@ -201,7 +202,7 @@ footer{border-top:1px solid var(--line);padding:44px 0 54px;position:relative;z-
   <div class="wrap">
     <div class="kicker">The pipeline</div>
     <h2>The real Android toolchain, driven by hand.</h2>
-    <p class="sub">No build system in the middle. APKB orchestrates the same tools Gradle wraps, step by step, with every stage visible and every failure logged.</p>
+    <p class="sub">No build system in the middle. APKB orchestrates the same command-line tools Gradle wraps (aapt2, ecj, d8, zipalign), step by step, with every stage visible and every failure logged.</p>
     <div class="pipe">
       <div class="step"><div class="t">source</div><div class="d">Java + res + manifest</div></div>
       <div class="step"><div class="t">aapt2 / aapt</div><div class="d">compile resources</div></div>
@@ -224,6 +225,7 @@ footer{border-top:1px solid var(--line);padding:44px 0 54px;position:relative;z-
 <span class="t-c">  [4/5]</span> package     zip + <span class="t-g">zipalign</span>
 <span class="t-c">  [5/5]</span> verify      manifest OK · 31 permissions resolved
 <span class="t-g">  ✔ BUILD OK</span> · MyApp-release.apk (3.4 MB) in 41s</pre>
+      <div class="term-cap">illustrative output, not a recorded run</div>
     </div>
   </div>
 </section>
@@ -233,7 +235,7 @@ footer{border-top:1px solid var(--line);padding:44px 0 54px;position:relative;z-
     <div>
       <div class="kicker">Broadcast Into Browser</div>
       <h2>A graphical lab, streamed from your terminal.</h2>
-      <p class="sub">One command starts a local server and opens a polished web UI. Your device does every piece of processing; the browser is just the window.</p>
+      <p class="sub">One command starts a local server and opens a web UI. Your device does every piece of processing; the browser is just the window.</p>
       <ul class="feat-list">
         <li><b>Nine lab tools:</b> Build APK, HTML → APK, Try Before Build, Analyze, APK Inspector, New Project, Lab Doctor, History &amp; Logs, Settings.</li>
         <li><b>Live everything:</b> progress bars, build steps and the full console stream to the page in real time.</li>
@@ -253,6 +255,7 @@ footer{border-top:1px solid var(--line);padding:44px 0 54px;position:relative;z-
 <span class="t-d">  job 1732-a4f9c1 · Build APK · MyApp</span>
   <span class="t-c">[==========&gt;......] 64%</span> dex · classes.dex
 <span class="t-g">  ✔ job finished</span> · APK ready for download</pre>
+      <div class="term-cap">illustrative output, not a recorded run</div>
     </div>
   </div>
 </section>
@@ -274,15 +277,15 @@ footer{border-top:1px solid var(--line);padding:44px 0 54px;position:relative;z-
     </div>
     <div>
       <div class="kicker">Try Before Build</div>
-      <h2>Run the app before it exists.</h2>
-      <p class="sub">A phone simulator inside the lab interprets your actual project: layouts, drawables, values, assets and Java code, rendered in a touchable phone frame.</p>
+      <h2>Preview the app before it exists.</h2>
+      <p class="sub">A browser-based preview inside the lab interprets your project: layouts, drawables, values, assets and Java code, rendered in a touchable phone frame. It is a preview, not a full Android emulator.</p>
       <ul class="feat-list">
         <li><b>Real behavior:</b> touch, dialogs, toasts, multi-activity navigation, lifecycle, rotation and dark mode.</li>
         <li><b>Real subsystems:</b> WebView with assets and JS bridge, custom Canvas views, SharedPreferences, Handler, Thread and AsyncTask.</li>
         <li><b>Real permissions:</b> camera, mic, location and notification requests use the browser's own prompt.</li>
         <li><b>Fix in place:</b> problems appear with the exact file:line, with a built-in editor to patch and reload instantly.</li>
       </ul>
-      <div class="note"><b>Honest limits:</b> native .so code, OpenGL ES, Kotlin and third-party libraries can't run in a browser. Their classes are stubbed and listed under "Not supported in the preview".</div>
+      <div class="note"><b>Honest limits:</b> this is a limited browser preview, not an emulator. Native .so code, OpenGL ES, Kotlin and third-party libraries can't run in a browser; their classes are stubbed and listed under "Not supported in the preview".</div>
     </div>
   </div>
 </section>
@@ -307,6 +310,7 @@ footer{border-top:1px solid var(--line);padding:44px 0 54px;position:relative;z-
         <div class="checkline"><span class="sev w">WARN&nbsp;</span><span class="loc">AndroidManifest.xml:9</span><span class="msg">WRITE_EXTERNAL_STORAGE ignored on API 29+</span></div>
         <div class="checkline"><span class="sev i">INFO&nbsp;</span><span class="loc">net/Utils.java:3</span><span class="msg">HttpURLConnection needs INTERNET permission</span><span class="hint">→ already declared</span></div>
       </div>
+      <div class="term-cap">illustrative diagnostics, example project</div>
     </div>
   </div>
 </section>
@@ -316,7 +320,7 @@ footer{border-top:1px solid var(--line);padding:44px 0 54px;position:relative;z-
     <div>
       <div class="kicker">Get started</div>
       <h2>From zero to APK in one command.</h2>
-      <p class="sub">APKB runs on Termux (Android) or any Linux with bash, Java and Python 3. Missing Android tools are installed for you on first run.</p>
+      <p class="sub">APKB runs on Termux (Android) or a Linux system with bash, Java and Python 3. Missing Android tools are installed for you on first run.</p>
       <div class="note"><b>You sign it:</b> APKB produces an unsigned APK by design. Sign it with apksigner and your own key before installing or publishing.</div>
     </div>
     <div class="term">
