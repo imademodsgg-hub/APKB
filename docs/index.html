@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>APKB · Build Android APKs from a terminal</title>
+<meta name="description" content="APKB turns raw Java into installable Android APKs on Termux or Linux. No Gradle, no Flutter, no PC. With a browser lab and a phone simulator that runs your app before you build it.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23073042'/%3E%3Cpath d='M9 21a7 7 0 0 1 14 0z' fill='%233DDC84'/%3E%3Ccircle cx='13' cy='17.6' r='.9' fill='%23073042'/%3E%3Ccircle cx='19' cy='17.6' r='.9' fill='%23073042'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b12; --bg2:#0b1220; --panel:#0e1626; --line:#1c2940;
+  --ink:#e8eef7; --dim:#8fa1bb; --faint:#5c6d87;
+  --green:#3ddc84; --green-deep:#0f9d58; --cyan:#4dd0e1; --amber:#ffca28; --red:#ef5350;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;line-height:1.6;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.glow{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(700px 420px at 12% -6%, rgba(61,220,132,.12), transparent 60%),
+    radial-gradient(700px 480px at 88% 4%, rgba(77,208,225,.10), transparent 60%);}
+.grid-bg{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background-image:linear-gradient(rgba(28,41,64,.35) 1px,transparent 1px),linear-gradient(90deg,rgba(28,41,64,.35) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:radial-gradient(ellipse 90% 55% at 50% 0%,#000 30%,transparent 75%);}
+header.nav{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);background:rgba(7,11,18,.72);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;gap:14px;height:62px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:700;font-size:17px}
+.logo svg{filter:drop-shadow(0 0 10px rgba(61,220,132,.45))}
+.nav-links{margin-left:auto;display:flex;gap:26px;font-size:14px;color:var(--dim)}
+.nav-links a:hover{color:var(--green)}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14.5px;padding:11px 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel);transition:.18s}
+.btn:hover{transform:translateY(-1px);border-color:#2c3d5c}
+.btn.primary{background:var(--green);color:#04120a;border-color:transparent}
+.btn.primary:hover{box-shadow:0 6px 26px rgba(61,220,132,.35)}
+.btn.ghost{background:transparent}
+.nav-cta{margin-left:18px;padding:8px 16px}
+.hero{position:relative;z-index:1;padding:96px 0 72px;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12.5px;color:var(--green);border:1px solid rgba(61,220,132,.35);background:rgba(61,220,132,.07);padding:6px 14px;border-radius:999px;letter-spacing:.04em}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+h1{font-size:clamp(40px,6.2vw,68px);font-weight:800;letter-spacing:-.03em;line-height:1.05;margin:26px auto 20px;max-width:840px}
+h1 .g{background:linear-gradient(100deg,var(--green),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{font-size:clamp(16px,2vw,19.5px);color:var(--dim);max-width:700px;margin:0 auto 34px}
+.lede b{color:var(--ink);font-weight:600}
+.cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.stats{display:flex;gap:0;justify-content:center;flex-wrap:wrap;margin-top:58px;border:1px solid var(--line);border-radius:16px;background:rgba(14,22,38,.6);overflow:hidden}
+.stat{padding:20px 34px;text-align:center;flex:1;min-width:170px}
+.stat+.stat{border-left:1px solid var(--line)}
+.stat .n{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--green)}
+.stat .l{font-size:13px;color:var(--faint);margin-top:2px}
+section{position:relative;z-index:1;padding:88px 0}
+.kicker{font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-bottom:14px}
+h2{font-size:clamp(28px,3.6vw,40px);font-weight:800;letter-spacing:-.02em;line-height:1.15;max-width:640px}
+.sub{color:var(--dim);max-width:620px;margin-top:14px;font-size:16.5px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin-top:44px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px;transition:.2s}
+.card:hover{transform:translateY(-3px);border-color:rgba(61,220,132,.4);box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.card .ic{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(61,220,132,.1);border:1px solid rgba(61,220,132,.25);margin-bottom:16px}
+.card h3{font-size:17.5px;font-weight:700;margin-bottom:8px}
+.card p{font-size:14.5px;color:var(--dim)}
+.card code{font-family:var(--mono);font-size:12.5px;background:rgba(61,220,132,.09);color:var(--green);padding:1px 6px;border-radius:6px}
+.term{background:#0a0f1a;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.term-bar{display:flex;align-items:center;gap:7px;padding:11px 16px;border-bottom:1px solid var(--line);background:#0d1424}
+.term-bar i{width:11px;height:11px;border-radius:50%;display:block}
+.term-bar i:nth-child(1){background:#ff5f57}.term-bar i:nth-child(2){background:#febc2e}.term-bar i:nth-child(3){background:#28c840}
+.term-bar span{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+.term pre{padding:20px 22px;font-family:var(--mono);font-size:13.5px;line-height:1.75;overflow-x:auto;color:#c9d6e8}
+.t-g{color:var(--green)}.t-c{color:var(--cyan)}.t-d{color:var(--faint)}.t-a{color:var(--amber)}.t-r{color:var(--red)}.t-w{color:#fff;font-weight:700}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+@media(max-width:900px){.split{grid-template-columns:1fr}.nav-links{display:none}}
+.pipe{display:flex;align-items:stretch;gap:0;margin-top:44px;flex-wrap:wrap}
+.step{flex:1;min-width:150px;background:var(--panel);border:1px solid var(--line);padding:18px 16px;text-align:center;position:relative}
+.step:first-child{border-radius:14px 0 0 14px}
+.step:last-child{border-radius:0 14px 14px 0}
+.step+.step{border-left:none}
+.step .t{font-family:var(--mono);font-size:13.5px;font-weight:700;color:var(--cyan)}
+.step .d{font-size:12px;color:var(--faint);margin-top:4px}
+.step.end .t{color:var(--green)}
+@media(max-width:900px){.step{border-radius:0}.step:first-child{border-radius:14px 14px 0 0}.step:last-child{border-radius:0 0 14px 14px}.step+.step{border-left:1px solid var(--line);border-top:none}}
+.phone{width:270px;height:560px;margin:0 auto;background:#05080e;border:1.5px solid #2a3a55;border-radius:38px;padding:12px;box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 60px rgba(61,220,132,.08)}
+.screen{height:100%;border-radius:28px;background:linear-gradient(180deg,#0d1b2a,#0a1420);overflow:hidden;display:flex;flex-direction:column}
+.notch{height:24px;display:flex;justify-content:center;align-items:flex-start}
+.notch i{width:86px;height:16px;background:#05080e;border-radius:0 0 12px 12px;display:block}
+.appbar{padding:10px 16px;font-size:13px;font-weight:600;color:#eaf2ff;background:rgba(61,220,132,.09);border-bottom:1px solid rgba(61,220,132,.18)}
+.screen .body{flex:1;padding:16px;display:flex;flex-direction:column;gap:10px}
+.sk{border-radius:8px;background:#152238}
+.sk.lg{height:96px;background:linear-gradient(135deg,rgba(61,220,132,.28),rgba(77,208,225,.16))}
+.sk.md{height:14px;width:78%}
+.sk.sm{height:14px;width:55%}
+.sk.btn-row{height:38px;margin-top:auto;background:var(--green);display:flex;align-items:center;justify-content:center;color:#04120a;font-size:12.5px;font-weight:700;font-family:var(--mono)}
+.feat-list{list-style:none;margin-top:26px;display:grid;gap:11px}
+.feat-list li{position:relative;padding-left:22px;font-size:15px;color:var(--dim)}
+.feat-list li::before{content:"▸";color:var(--green);font-weight:700;position:absolute;left:0;top:0}
+.feat-list b{color:var(--ink);font-weight:600}
+.checkline{display:flex;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12.5px;align-items:baseline}
+.checkline:last-child{border-bottom:none}
+.sev{flex-shrink:0;font-weight:700;font-size:11px;padding:2px 8px;border-radius:6px}
+.sev.e{background:rgba(239,83,80,.14);color:var(--red)}
+.sev.w{background:rgba(255,202,40,.12);color:var(--amber)}
+.sev.i{background:rgba(77,208,225,.1);color:var(--cyan)}
+.loc{color:var(--cyan)}
+.checkline .msg{color:#c9d6e8}
+.checkline .hint{color:var(--faint)}
+.getstart{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:start}
+@media(max-width:900px){.getstart{grid-template-columns:1fr}}
+.note{border:1px solid var(--line);border-left:3px solid var(--amber);background:rgba(255,202,40,.05);border-radius:10px;padding:16px 18px;font-size:14px;color:var(--dim);margin-top:22px}
+.note b{color:var(--amber)}
+footer{border-top:1px solid var(--line);padding:44px 0 54px;position:relative;z-index:1}
+.foot-in{display:flex;justify-content:space-between;gap:22px;flex-wrap:wrap;align-items:center;color:var(--faint);font-size:13.5px}
+.foot-in a{color:var(--dim)}
+.foot-in a:hover{color:var(--green)}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="grid-bg"></div>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="#top">
+      <svg width="26" height="26" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="#073042"/><path d="M9 21a7 7 0 0 1 14 0z" fill="#3DDC84"/><circle cx="13" cy="17.6" r=".9" fill="#073042"/><circle cx="19" cy="17.6" r=".9" fill="#073042"/></svg>
+      APKB
+    </a>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#lab">Browser Lab</a>
+      <a href="#try">Try Before Build</a>
+      <a href="#start">Get Started</a>
+    </nav>
+    <a class="btn primary nav-cta" href="https://github.com/imademodsgg-hub/APKB">GitHub</a>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow"><span class="dot"></span> v2.0 · Lab Edition · Termux &amp; Linux</span>
+    <h1>Build real Android APKs<br>from a <span class="g">terminal</span>.</h1>
+    <p class="lede">APKB compiles raw Java into installable APKs with <b>no Gradle, no Flutter and no PC</b>. It turns any HTML project into a WebView app, broadcasts a full graphical lab into your browser, and runs your app in a phone simulator <b>before</b> you build it.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/imademodsgg-hub/APKB/releases/tag/v2.0">Download v2.0</a>
+      <a class="btn" href="#start">Get started</a>
+      <a class="btn ghost" href="https://github.com/imademodsgg-hub/APKB">View source</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="n">0</div><div class="l">Gradle or Flutter required</div></div>
+      <div class="stat"><div class="n">1</div><div class="l">command: bash apkb.sh</div></div>
+      <div class="stat"><div class="n">2</div><div class="l">build modes: Java &amp; HTML</div></div>
+      <div class="stat"><div class="n">100%</div><div class="l">bash + Python stdlib</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="kicker">What it does</div>
+    <h2>A complete APK workshop that fits in your pocket.</h2>
+    <p class="sub">Every stage of building an Android app, rebuilt as small, readable bash and Python. Nothing hidden, nothing downloaded behind your back.</p>
+    <div class="cards">
+      <div class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3DDC84" stroke-width="2"><path d="M4 17l6-6-6-6M12 19h8"/></svg></div>
+        <h3>Raw Java → APK</h3>
+        <p>Point APKB at any Android source tree, whatever its folder layout. The scanner finds the manifest, resources, Java sources and libraries, then the pipeline compiles a release or debug APK.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3DDC84" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></svg></div>
+        <h3>HTML → APK wizard</h3>
+        <p>Turn a website or local HTML project into a real WebView app. Splash screen, icon, theme colors, orientation, JS bridge, offline page and permissions, all from one guided wizard.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3DDC84" stroke-width="2"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <h3>Broadcast Into Browser</h3>
+        <p>Prefer a GUI? <code>bash apkb.sh broadcast</code> opens a graphical lab in your browser. Termux still does all the work; the page streams live progress, steps and the full console.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3DDC84" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18.5h2"/></svg></div>
+        <h3>Try Before Build</h3>
+        <p>Run your app in a phone frame before compiling. Your real layouts, drawables and Java code, interpreted live in the browser with touch, dialogs, toasts and multi-activity navigation.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3DDC84" stroke-width="2"><path d="M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5"/></svg></div>
+        <h3>Project Checker</h3>
+        <p>Catches broken resource references, missing permissions and bad imports before any build starts, with the exact file and line, plus a hint for the fix and a built-in editor.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3DDC84" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg></div>
+        <h3>APK Inspector &amp; Lab Doctor</h3>
+        <p>Inspect any APK's manifest, permissions and contents. Lab Doctor diagnoses your toolchain, and every failed build saves a full log you can download from the page.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pipeline" style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <div class="kicker">The pipeline</div>
+    <h2>The real Android toolchain, driven by hand.</h2>
+    <p class="sub">No build system in the middle. APKB orchestrates the same tools Gradle wraps, step by step, with every stage visible and every failure logged.</p>
+    <div class="pipe">
+      <div class="step"><div class="t">source</div><div class="d">Java + res + manifest</div></div>
+      <div class="step"><div class="t">aapt2 / aapt</div><div class="d">compile resources</div></div>
+      <div class="step"><div class="t">ecj / javac</div><div class="d">compile Java</div></div>
+      <div class="step"><div class="t">d8 / dx</div><div class="d">dex bytecode</div></div>
+      <div class="step"><div class="t">zipalign</div><div class="d">align &amp; package</div></div>
+      <div class="step end"><div class="t">app.apk</div><div class="d">ready to sign</div></div>
+    </div>
+    <div class="term" style="margin-top:36px">
+      <div class="term-bar"><i></i><i></i><i></i><span>termux · apkb</span></div>
+      <pre><span class="t-g">$</span> bash apkb.sh
+<span class="t-d">╔══════════════════════════════════════════════╗
+║  APKB · Android Package Kit Builder (Lab)    ║
+║  raw Java → APK · no Gradle · no Flutter     ║
+╚══════════════════════════════════════════════╝</span>
+<span class="t-w">  BUILD · MyApp</span>
+<span class="t-c">  [1/5]</span> resources   <span class="t-g">aapt2</span> · 142 files compiled
+<span class="t-c">  [2/5]</span> java        <span class="t-g">ecj</span> · 18 sources, 0 errors
+<span class="t-c">  [3/5]</span> dex         <span class="t-g">d8</span> · classes.dex (1.2 MB)
+<span class="t-c">  [4/5]</span> package     zip + <span class="t-g">zipalign</span>
+<span class="t-c">  [5/5]</span> verify      manifest OK · 31 permissions resolved
+<span class="t-g">  ✔ BUILD OK</span> · MyApp-release.apk (3.4 MB) in 41s</pre>
+    </div>
+  </div>
+</section>
+
+<section id="lab">
+  <div class="wrap split">
+    <div>
+      <div class="kicker">Broadcast Into Browser</div>
+      <h2>A graphical lab, streamed from your terminal.</h2>
+      <p class="sub">One command starts a local server and opens a polished web UI. Your device does every piece of processing; the browser is just the window.</p>
+      <ul class="feat-list">
+        <li><b>Nine lab tools:</b> Build APK, HTML → APK, Try Before Build, Analyze, APK Inspector, New Project, Lab Doctor, History &amp; Logs, Settings.</li>
+        <li><b>Live everything:</b> progress bars, build steps and the full console stream to the page in real time.</li>
+        <li><b>Download from the page:</b> the finished APK lands in your browser. Every failed build downloads its log automatically.</li>
+        <li><b>Private by default:</b> listens on 127.0.0.1 behind a one-time token. Pass <b>--lan</b> to reach it from other devices on your Wi-Fi.</li>
+      </ul>
+    </div>
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i><span>termux · broadcast</span></div>
+      <pre><span class="t-g">$</span> bash apkb.sh broadcast
+<span class="t-w">  APKB · Broadcast Into Browser</span>
+  Server      <span class="t-c">http://127.0.0.1:8765</span>
+  Open        <span class="t-d">http://127.0.0.1:8765/?t=••••••••</span>
+  LAN         <span class="t-d">off (use --lan to share on Wi-Fi)</span>
+<span class="t-g">  ✔ Lab is live.</span> Press Ctrl+C to stop.
+
+<span class="t-d">  job 1732-a4f9c1 · Build APK · MyApp</span>
+  <span class="t-c">[==========&gt;......] 64%</span> dex · classes.dex
+<span class="t-g">  ✔ job finished</span> · APK ready for download</pre>
+    </div>
+  </div>
+</section>
+
+<section id="try" style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap split">
+    <div class="phone">
+      <div class="screen">
+        <div class="notch"><i></i></div>
+        <div class="appbar">MyApp · preview</div>
+        <div class="body">
+          <div class="sk lg"></div>
+          <div class="sk md"></div>
+          <div class="sk sm"></div>
+          <div class="sk md" style="width:64%"></div>
+          <div class="sk btn-row">GET STARTED</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="kicker">Try Before Build</div>
+      <h2>Run the app before it exists.</h2>
+      <p class="sub">A phone simulator inside the lab interprets your actual project: layouts, drawables, values, assets and Java code, rendered in a touchable phone frame.</p>
+      <ul class="feat-list">
+        <li><b>Real behavior:</b> touch, dialogs, toasts, multi-activity navigation, lifecycle, rotation and dark mode.</li>
+        <li><b>Real subsystems:</b> WebView with assets and JS bridge, custom Canvas views, SharedPreferences, Handler, Thread and AsyncTask.</li>
+        <li><b>Real permissions:</b> camera, mic, location and notification requests use the browser's own prompt.</li>
+        <li><b>Fix in place:</b> problems appear with the exact file:line, with a built-in editor to patch and reload instantly.</li>
+      </ul>
+      <div class="note"><b>Honest limits:</b> native .so code, OpenGL ES, Kotlin and third-party libraries can't run in a browser. Their classes are stubbed and listed under "Not supported in the preview".</div>
+    </div>
+  </div>
+</section>
+
+<section id="checker">
+  <div class="wrap split">
+    <div>
+      <div class="kicker">Project Checker</div>
+      <h2>Broken builds die before they start.</h2>
+      <p class="sub">The checker scans sources, resources and the manifest together, and reports problems the way a compiler should: severity, exact location, and what to do about it.</p>
+      <ul class="feat-list">
+        <li>Missing permissions inferred from the APIs you call.</li>
+        <li>Dangling <b>@string/</b>, <b>@layout/</b> and <b>R.</b> references.</li>
+        <li>Duplicate jars, unsupported imports and manifest issues.</li>
+      </ul>
+    </div>
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i><span>apkb · check</span></div>
+      <div>
+        <div class="checkline"><span class="sev e">ERROR</span><span class="loc">MainActivity.java:87</span><span class="msg">CameraManager used but CAMERA permission missing</span></div>
+        <div class="checkline"><span class="sev e">ERROR</span><span class="loc">res/layout/main.xml:14</span><span class="msg">@drawable/banner not found</span><span class="hint">→ create res/drawable/banner.xml</span></div>
+        <div class="checkline"><span class="sev w">WARN&nbsp;</span><span class="loc">AndroidManifest.xml:9</span><span class="msg">WRITE_EXTERNAL_STORAGE ignored on API 29+</span></div>
+        <div class="checkline"><span class="sev i">INFO&nbsp;</span><span class="loc">net/Utils.java:3</span><span class="msg">HttpURLConnection needs INTERNET permission</span><span class="hint">→ already declared</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="start" style="background:var(--bg2);border-top:1px solid var(--line)">
+  <div class="wrap getstart">
+    <div>
+      <div class="kicker">Get started</div>
+      <h2>From zero to APK in one command.</h2>
+      <p class="sub">APKB runs on Termux (Android) or any Linux with bash, Java and Python 3. Missing Android tools are installed for you on first run.</p>
+      <div class="note"><b>You sign it:</b> APKB produces an unsigned APK by design. Sign it with apksigner and your own key before installing or publishing.</div>
+    </div>
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i><span>install</span></div>
+      <pre><span class="t-d"># grab APKB v2.0</span>
+<span class="t-g">$</span> git clone https://github.com/imademodsgg-hub/APKB.git
+<span class="t-g">$</span> cd APKB
+
+<span class="t-d"># terminal menu</span>
+<span class="t-g">$</span> bash apkb.sh
+
+<span class="t-d"># or open the graphical lab</span>
+<span class="t-g">$</span> bash apkb.sh broadcast <span class="t-d"># add --lan for Wi-Fi devices</span></pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-in">
+    <span>APKB v2.0 · Android Package Kit Builder, Lab Edition</span>
+    <span><a href="https://github.com/imademodsgg-hub/APKB">GitHub</a> · <a href="https://github.com/imademodsgg-hub/APKB/releases/tag/v2.0">Release v2.0</a> · <a href="https://github.com/imademodsgg-hub/APKB/issues">Issues</a></span>
+  </div>
+</footer>
+</body>
+</html>
